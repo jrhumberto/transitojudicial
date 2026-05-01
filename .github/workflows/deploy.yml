@@ -1,0 +1,44 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Criar pasta public e gerar env.js
+        run: |
+          mkdir -p public
+          echo "window.env = {" > public/env.js
+          echo "  ALLOWED_USER1: \"${{ secrets.ALLOWED_USER1 }}\"," >> public/env.js
+          echo "  ALLOWED_PASS1: \"${{ secrets.ALLOWED_PASS1 }}\"," >> public/env.js
+          echo "  ALLOWED_USER2: \"${{ secrets.ALLOWED_USER2 }}\"," >> public/env.js
+          echo "  ALLOWED_PASS2: \"${{ secrets.ALLOWED_PASS2 }}\"," >> public/env.js
+          echo "  AUTHORIZATION: \"${{ secrets.ALLOWED_PASS2 }}\"," >> public/env.js
+          echo "};" >> public/env.js
+
+      - name: Copiar arquivos para public
+        run: |
+          cp *.html *.css *.js public/ 2>/dev/null || true
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload do artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy
+        uses: actions/deploy-pages@v4

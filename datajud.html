@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulta de Processo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="theme-toggle-wrapper">
+    <label class="theme-switch">
+      <input type="checkbox" id="theme-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="card">
+    <h2 class="title">🔎 Consulta de Processo</h2>
+    <input
+      type="text"
+      id="processo"
+      placeholder="Digite o número do processo"
+      required
+    />
+    <select id="tribunal">
+      <option value="stj">⚖️ STJ</option>
+      <option value="tjce">📃 TJCE</option>
+      <option value="tjsp">📃 TJSP</option>
+      <option value="trf1">⚖️ TRF1</option>
+      <option value="trf2">⚖️ TRF2</option>
+      <option value="trf3">⚖️ TRF3</option>
+      <option value="trf4">⚖️ TRF4</option>
+      <option value="trf5">⚖️ TRF5</option>
+      <option value="trf6">⚖️ TRF6</option>
+    </select>
+    <button onclick="searchProcess()">Confirmar</button>
+  </div>
+
+  <div id="result-container"></div>
+
+  <script src="env.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

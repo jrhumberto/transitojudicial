@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="theme-toggle-wrapper">
+  <label class="theme-switch">
+    <input type="checkbox" id="theme-toggle" />
+    <span class="slider"></span>
+  </label>
+  </div>
+  <div class="card">
+    <h2 class="title">🔐 Acesso Restrito</h2>
+    <input type="email" id="email" placeholder="Usuário" required autofocus />
+    <input type="password" id="password" placeholder="Senha" required />
+    <select id="redirect">
+      <option value="home.html">🏠 Home</option>
+      <option value="dashboard.html">📊 Dashboard</option>
+      <option value="datajud.html">⚖️ Datajud</option>
+    </select>
+    <button onclick="login()">Entrar</button>
+    <p id="error" class="error"></p>
+  </div>
+  <script src="env.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

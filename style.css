@@ -1,0 +1,308 @@
+:root {
+  --bg-light: #f1f5f9;
+  --bg-dark: #0f172a;
+  --text-light: #0f172a;
+  --text-dark: #f1f5f9;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #cbd5e1;
+  --radius: 0.5rem;
+  --font: 'Segoe UI', sans-serif;
+  --error: #dc2626;
+  --result-bg: #f5f5f5;
+  --result-btn-bg: #e0dcd2;
+  --result-btn-hover: #d4d0c6;
+  --result-btn-text: #4a4a4a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body.light {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+}
+
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.card {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+body.dark .card {
+  background-color: #1e293b;
+  color: var(--text-dark);
+}
+
+.result-card {
+  background-color: var(--result-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 720px;
+  text-align: left;
+  margin: 0 auto 2rem auto;
+}
+
+.result-card h3 {
+  margin-top: 0;
+}
+
+.clear-btn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  background-color: var(--result-btn-bg);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--result-btn-text);
+}
+
+.clear-btn:hover {
+  background-color: var(--result-btn-hover);
+}
+
+input, select, button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+button {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+  transform: scale(1.02);
+}
+
+.title {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.error {
+  color: var(--error);
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Tema toggle estilo shadcn */
+.theme-toggle-wrapper {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: background-color 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "🌞";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.4s, content 0.4s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input:checked + .slider {
+  background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+  content: "🌙";
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .card, .result-card {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  button {
+    font-size: 0.95rem;
+  }
+}
+
+body.dark .result-card {
+  background-color: #1e293b; /* fundo escuro */
+  color: var(--text-dark);   /* texto claro */
+}
+
+body.dark .result-card strong {
+  color: var(--text-dark);   /* força o texto em <strong> a ser visível */
+}
+
+.info-highlight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  background-color: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  color: inherit;
+  margin: 1rem 0;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.info-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.info-content {
+  flex: 1;
+}
+
+/* Tema escuro */
+body.dark .info-highlight {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .info-icon {
+  color: var(--accent);
+}
+
+.invisible-text {
+  color: rgba(37, 99, 235, 0.08); /* mesma cor do fundo claro */
+  user-select: text; /* garante que ainda possa ser copiado */
+  transition: color 0.3s ease;
+}
+
+/* tema escuro */
+body.dark .invisible-text {
+  color: #1e293b; /* mesma cor do fundo escuro */
+}
+
+/* ao selecionar o texto, revela */
+.invisible-text::selection {
+  color: var(--accent);
+  background-color: rgba(255,255,255,0.2);
+}
+
+/* Invisibiliza, mas mantém o texto selecionável e no fluxo */
+.invisible-code {
+  color: transparent;                  /* texto invisível */
+  -webkit-text-fill-color: transparent;/* Safari */
+  transition: color .16s ease;         /* transição suave ao revelar */
+  cursor: text;                        /* cursor de texto ao passar por cima */
+  white-space: nowrap;                 /* evita quebra no código curto */
+  outline: none;
+}
+
+/* Revela quando o usuário passa o mouse sobre o próprio código,
+   quando foca via teclado, ou quando passa o mouse sobre o card pai */
+.invisible-code:hover,
+.invisible-code:focus,
+.info-highlight:hover .invisible-code {
+  color: var(--accent);                /* cor visível ao passar o mouse */
+  -webkit-text-fill-color: initial;
+}
+
+/* Leve destaque quando o usuário seleciona/copiar (visível durante seleção) */
+.invisible-code::selection {
+  color: var(--accent);
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+/* Ajuste para modo escuro: usa uma variação do accent se quiser */
+body.dark .invisible-code:hover,
+body.dark .invisible-code:focus,
+body.dark .info-highlight:hover .invisible-code {
+  color: var(--accent-hover);
+}
+
+/* Foco por teclado — para acessibilidade visual */
+.invisible-code:focus {
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  border-radius: 4px;
+}
