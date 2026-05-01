@@ -25,7 +25,7 @@ jobs:
           echo "  ALLOWED_PASS1: \"${{ secrets.ALLOWED_PASS1 }}\"," >> public/env.js
           echo "  ALLOWED_USER2: \"${{ secrets.ALLOWED_USER2 }}\"," >> public/env.js
           echo "  ALLOWED_PASS2: \"${{ secrets.ALLOWED_PASS2 }}\"," >> public/env.js
-          echo "  AUTHORIZATION: \"${{ secrets.ALLOWED_PASS2 }}\"," >> public/env.js
+          echo "  AUTHORIZED: \"${{ secrets.AUTHORIZED }}\"," >> public/env.js
           echo "};" >> public/env.js
 
       - name: Copiar arquivos para public
