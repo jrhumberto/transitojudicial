@@ -80,7 +80,7 @@ if (window.location.pathname.includes("login.html")) {
       return;
     }
 
-    const { ALLOWED_USER1, ALLOWED_PASS1, ALLOWED_USER2, ALLOWED_PASS2 } = window.env;
+    const { ALLOWED_USER1, ALLOWED_PASS1, ALLOWED_USER2, ALLOWED_PASS2, AUTHORIZED } = window.env;
 
     if (
       (email === ALLOWED_USER1 && pass === ALLOWED_PASS1) ||
@@ -136,13 +136,14 @@ if (window.location.pathname.includes("datajud.html")) {
 
     try {
       const trib = document.getElementById("tribunal").value;
+      const { ALLOWED_USER1, ALLOWED_PASS1, ALLOWED_USER2, ALLOWED_PASS2, AUTHORIZED } = window.env;
       const url_source = encodeURIComponent("https://api-publica.datajud.cnj.jus.br/api_publica_"+trib+"/_search");
       const url_proxy = "https://corsproxy.io/?url=" + url_source;
 
       const resp = await fetch(url_proxy, {
         method: "POST",
         headers: {
-          "Authorization": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==",
+          "Authorization": AUTHORIZED,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -213,16 +214,6 @@ if (window.location.pathname.includes("datajud.html")) {
           ${tr_julg}
         </div>
       `;
-      // Monta array no formato "codigo - nome"
-      // const assuntosFormatados = data.assuntos.map(a => `${a.codigo} - ${a.nome}`);
-      // Junta tudo separado por vírgula
-      // const texto = assuntosFormatados.join(", ");
-      // Pega o último elemento
-      //const ultimo = data.assuntos[data.assuntos.length - 1];
-      // Monta a string "codigo - nome"
-      //const texto = `${ultimo.codigo} - ${ultimo.nome}`;
-
-
     } catch (err) {
       container.innerHTML = `<p class="error">❌ Erro: ${err.message}</p>`;
     }
