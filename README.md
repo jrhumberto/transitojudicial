@@ -8,7 +8,7 @@ https://jrhumberto.github.io/transitojudicial/
 
 ## Contexto de negócio
 
-Um importante problema quando se estuda Jurimetria é saber a razoável duração de um processo. Por isso, é relevante compreender o marco do "Trânsito em Julgado" como seu ponto de finalização. No entanto, alguns processos tem características peculiares que podem necessitar de mais de um marco, por isso esta aplicação vem no interesse de ofertar uma visão sintética que aesclarece se um processo teve mais de um "Trânsito em julgado"
+Um importante problema quando se estuda Jurimetria é saber a razoável duração de um processo. Por isso, é relevante compreender o marco do "Trânsito em Julgado" como seu ponto de finalização. No entanto, alguns processos tem características peculiares que podem necessitar de mais de um marco, por isso esta aplicação vem no interesse de ofertar uma visão sintética que esclarece se um processo teve mais de um "Trânsito em julgado"
 
 A consulta em tribunais é um processo demasiadamente mecânico, com cada Egrégia com seu sistema de consulta. Um importante sintoma dessa difuiculdade é ofertar aos advogados um local para consultar processos e a API do Conselho Nacional de Justiça do DATAJUD veio para facilitar este acesso.
 
