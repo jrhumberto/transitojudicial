@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Protótipo de Telas — transitojudicial</title>
+<style>
+/* ===== Tokens reaproveitados de styles.css do repositório ===== */
+:root {
+  --bg-light: #f1f5f9;
+  --bg-dark: #0f172a;
+  --text-light: #0f172a;
+  --text-dark: #f1f5f9;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #cbd5e1;
+  --radius: 0.5rem;
+  --font: 'Segoe UI', sans-serif;
+  --error: #dc2626;
+  --result-bg: #f5f5f5;
+  --result-btn-bg: #e0dcd2;
+  --result-btn-hover: #d4d0c6;
+  --result-btn-text: #4a4a4a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  transition: background-color .4s ease, color .4s ease;
+  min-height: 100vh;
+}
+body.light { background-color: var(--bg-light); color: var(--text-light); }
+body.dark  { background-color: var(--bg-dark);  color: var(--text-dark); }
+
+.card {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+body.dark .card { background-color: #1e293b; color: var(--text-dark); }
+
+.result-card {
+  background-color: var(--result-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,.08);
+  width: 100%;
+  max-width: 720px;
+  text-align: left;
+  margin: 0 auto 2rem auto;
+}
+.result-card h3 { margin-top: 0; }
+body.dark .result-card { background-color: #1e293b; color: var(--text-dark); }
+body.dark .result-card strong { color: var(--text-dark); }
+
+.clear-btn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  background-color: var(--result-btn-bg);
+  border: none;
+  padding: .4rem .8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--result-btn-text);
+}
+.clear-btn:hover { background-color: var(--result-btn-hover); }
+
+input, select, button {
+  width: 100%;
+  padding: .75rem;
+  margin-top: 1rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  transition: border-color .3s, box-shadow .3s;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37,99,235,.2);
+}
+button { background-color: var(--accent); color: #fff; border: none; cursor: pointer; transition: background .3s, transform .2s; }
+button:hover { background-color: var(--accent-hover); transform: scale(1.02); }
+
+.title { font-size: 1.6rem; margin-bottom: 1.5rem; }
+.subtitle { opacity: .8; }
+.error { color: var(--error); margin-top: 1rem; font-size: .9rem; }
+
+.theme-toggle-wrapper { position: fixed; top: 1rem; right: 1rem; z-index: 100; }
+.theme-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+.theme-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0;
+  background-color: var(--border); transition: background-color .4s; border-radius: 34px;
+}
+.slider:before {
+  position: absolute; content: "🌞"; height: 24px; width: 24px; left: 2px; bottom: 2px;
+  background-color: #fff; border-radius: 50%; transition: transform .4s, content .4s;
+  font-size: 14px; display: flex; align-items: center; justify-content: center;
+}
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider:before { transform: translateX(24px); content: "🌙"; }
+
+.fade-in { animation: fadeIn .6s ease; }
+@keyframes fadeIn { from{opacity:0; transform: translateY(20px);} to{opacity:1; transform: translateY(0);} }
+
+@media (max-width: 480px) {
+  .card, .result-card { padding: 1.5rem; }
+  .title { font-size: 1.4rem; }
+  button { font-size: .95rem; }
+}
+
+.info-highlight {
+  display: flex; align-items: center; gap: .75rem;
+  padding: 1rem 1.25rem; border-radius: var(--radius);
+  background-color: rgba(37,99,235,.08); border: 1px solid rgba(37,99,235,.15);
+  color: inherit; margin: 1rem 0; font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: background-color .3s ease, border-color .3s ease;
+}
+.info-icon { font-size: 1.4rem; line-height: 1; }
+.info-content { flex: 1; }
+body.dark .info-highlight { background-color: rgba(255,255,255,.05); border-color: rgba(255,255,255,.12); }
+body.dark .info-icon { color: var(--accent); }
+
+.invisible-code {
+  color: transparent; -webkit-text-fill-color: transparent;
+  transition: color .16s ease; cursor: text; white-space: nowrap; outline: none;
+}
+.invisible-code:hover, .invisible-code:focus, .info-highlight:hover .invisible-code {
+  color: var(--accent); -webkit-text-fill-color: initial;
+}
+body.dark .invisible-code:hover, body.dark .invisible-code:focus,
+body.dark .info-highlight:hover .invisible-code { color: var(--accent-hover); }
+
+/* ===== Elementos exclusivos deste protótipo (não fazem parte do app real) ===== */
+.proto-shell { width: 100%; max-width: 900px; }
+.proto-header {
+  width: 100%; max-width: 900px; margin-bottom: 1.5rem;
+  display: flex; flex-direction: column; gap: .35rem; align-items: center; text-align: center;
+}
+.proto-header h1 { margin: 0; font-size: 1.3rem; }
+.proto-header p { margin: 0; font-size: .85rem; opacity: .75; max-width: 640px; }
+.proto-tabs {
+  display: flex; gap: .5rem; margin: 1rem 0 1.5rem; flex-wrap: wrap; justify-content: center;
+}
+.proto-tab {
+  width: auto; margin-top: 0; padding: .5rem 1rem; font-size: .85rem;
+  background: transparent; color: inherit; border: 1px solid var(--border);
+}
+.proto-tab.active { background-color: var(--accent); color: #fff; border-color: var(--accent); }
+.proto-screen { display: none; }
+.proto-screen.active { display: flex; flex-direction: column; align-items: center; }
+.proto-note {
+  font-size: .75rem; opacity: .65; max-width: 400px; margin-top: -1rem; margin-bottom: 1.5rem; text-align: center;
+}
+.proto-badge {
+  display: inline-block; font-size: .7rem; padding: .15rem .5rem; border-radius: 999px;
+  background: rgba(37,99,235,.12); color: var(--accent); font-weight: 600; margin-left: .4rem;
+}
+</style>
+</head>
+<body class="light" id="body">
+
+  <div class="theme-toggle-wrapper">
+    <label class="theme-switch">
+      <input type="checkbox" id="theme-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="proto-header">
+    <h1>Protótipo de Telas — transitojudicial</h1>
+    <p>Reprodução estática das telas descritas em <code>login.html</code>, <code>home.html</code> e <code>datajud.html</code>, usando os mesmos tokens visuais de <code>styles.css</code>. Sem chamadas reais à API do DATAJUD — os dados de exemplo abaixo vêm de <code>docs/cases_test.md</code>.</p>
+  </div>
+
+  <div class="proto-tabs">
+    <button class="proto-tab active" data-tab="login">1. Login</button>
+    <button class="proto-tab" data-tab="home">2. Home</button>
+    <button class="proto-tab" data-tab="datajud">3. Consulta Datajud</button>
+    <button class="proto-tab" data-tab="resultado-simples">4. Resultado — trânsito único</button>
+    <button class="proto-tab" data-tab="resultado-duplo">5. Resultado — duplo trânsito</button>
+    <button class="proto-tab" data-tab="erro">6. Estados de erro</button>
+  </div>
+
+  <div class="proto-shell">
+
+    <!-- 1. LOGIN -->
+    <section class="proto-screen active" id="tab-login">
+      <div class="card">
+        <h2 class="title">🔐 Acesso Restrito</h2>
+        <input type="email" placeholder="Usuário" autofocus />
+        <input type="password" placeholder="Senha" />
+        <select>
+          <option>🏠 Home</option>
+          <option selected>⚖️ Datajud</option>
+        </select>
+        <button>Entrar</button>
+        <p class="error"></p>
+      </div>
+      <p class="proto-note">US01/US02/US03 · UC01 — credenciais validadas contra <code>env.js</code>; destino escolhível; erro exibido em <code>#error</code>.</p>
+    </section>
+
+    <!-- 2. HOME -->
+    <section class="proto-screen" id="tab-home">
+      <div class="card">
+        <h2 class="title">🎉 Bem-vindo!</h2>
+        <p class="subtitle">Você está logado com sucesso.</p>
+        <button>🚪 Sair</button>
+      </div>
+      <p class="proto-note">US06 · UC03 — logout limpa <code>authenticated</code>/<code>loginTime</code> e volta a <code>login.html</code>.</p>
+    </section>
+
+    <!-- 3. DATAJUD (vazio) -->
+    <section class="proto-screen" id="tab-datajud">
+      <div class="card">
+        <h2 class="title">🔎 Consulta de Processo</h2>
+        <input type="text" placeholder="Digite o número único do processo (NUP)" />
+        <select>
+          <option selected>⚖️ STJ</option>
+          <option>📃 TJCE</option>
+          <option>📃 TJSP</option>
+          <option>⚖️ TRF1</option>
+          <option>⚖️ TRF2</option>
+          <option>⚖️ TRF3</option>
+          <option>⚖️ TRF4</option>
+          <option>⚖️ TRF5</option>
+          <option>⚖️ TRF6</option>
+        </select>
+        <button>Confirmar</button>
+      </div>
+      <p class="proto-note">US08/US09 · UC04 — número do processo é normalizado (só dígitos) antes de consultar o tribunal selecionado.</p>
+    </section>
+
+    <!-- 4. RESULTADO SIMPLES -->
+    <section class="proto-screen" id="tab-resultado-simples">
+      <div class="result-card fade-in">
+        <button class="clear-btn">🧹 Limpar</button>
+        <h3>🆔 0002213-52.2010.4.02.5103 <span class="proto-badge">trânsito único</span></h3>
+        <p>🏛️ <strong>Tribunal:</strong> TRF2</p>
+        <p>📍 <strong>Grau:</strong> G2</p>
+        <p>📅 <strong>Data de Ajuizamento:</strong> 10/03/2010</p>
+        <p>🕒 <strong>Última Atualização:</strong> 04/07/2025 22:13:38</p>
+        <p>🔒 <strong>Nível de Sigilo:</strong> 0</p>
+        <p>📢 <strong>Assuntos:</strong> 899 - Recurso Especial</p>
+        <p>📓 <strong>Classe:</strong> 1234 - Apelação Cível</p>
+        <p>🖥️ <strong>Sistema:</strong> 1 - PJe</p>
+        <p>🖺 <strong>Formato:</strong> 1 - Eletrônico</p>
+        <p>🧑‍⚖️ <strong>Órgão Julgador:</strong> 5ª Turma Especializada</p>
+        <p>📚 <strong>Primeiro Movimento:</strong> 26 - Distribuição em: 10/03/2010</p>
+        <p>🔥 <strong>Último Movimento:</strong> 246 - Baixa Definitiva em: 15/06/2011</p>
+        <div class="info-highlight">
+          <span class="info-icon">✅</span>
+          <div class="info-content">
+            <strong><span class="invisible-code" tabindex="0" title="242">242</span> - Trânsito em Julgado em: 20/05/2011</strong>
+          </div>
+        </div>
+      </div>
+      <p class="proto-note">US12/US13 · UC04/UC05 — caso com apenas 1 movimento contendo "julgado" (comportamento normal).</p>
+    </section>
+
+    <!-- 5. RESULTADO DUPLO -->
+    <section class="proto-screen" id="tab-resultado-duplo">
+      <div class="result-card fade-in">
+        <button class="clear-btn">🧹 Limpar</button>
+        <h3>🆔 0049481-77.1999.4.03.6100 <span class="proto-badge">duplo trânsito</span></h3>
+        <p>🏛️ <strong>Tribunal:</strong> TRF3</p>
+        <p>📍 <strong>Grau:</strong> G1</p>
+        <p>📅 <strong>Data de Ajuizamento:</strong> 12/08/1999</p>
+        <p>🕒 <strong>Última Atualização:</strong> 05/08/2025 09:41:02</p>
+        <p>🔒 <strong>Nível de Sigilo:</strong> 0</p>
+        <p>📢 <strong>Assuntos:</strong> 10570 - Execução Fiscal</p>
+        <p>📓 <strong>Classe:</strong> 1116 - Execução Fiscal</p>
+        <p>🖥️ <strong>Sistema:</strong> 1 - PJe</p>
+        <p>🖺 <strong>Formato:</strong> 1 - Eletrônico</p>
+        <p>🧑‍⚖️ <strong>Órgão Julgador:</strong> 2ª Vara Federal</p>
+        <p>📚 <strong>Primeiro Movimento:</strong> 26 - Distribuição em: 12/08/1999</p>
+        <p>🔥 <strong>Último Movimento:</strong> 246 - Baixa Definitiva em: 05/08/2025</p>
+        <div class="info-highlight">
+          <span class="info-icon">✅</span>
+          <div class="info-content">
+            <strong>
+              <span class="invisible-code" tabindex="0" title="242">242</span> - Trânsito em Julgado em: 14/11/2018<br>
+              <span class="invisible-code" tabindex="0" title="242">242</span> - Trânsito em Julgado em: 05/08/2025
+            </strong>
+          </div>
+        </div>
+      </div>
+      <p class="proto-note">US13 · UC05 — dois movimentos com "julgado" no nome: a aplicação lista ambos, evidenciando o duplo marco (essência do problema de negócio do projeto).</p>
+    </section>
+
+    <!-- 6. ESTADOS DE ERRO -->
+    <section class="proto-screen" id="tab-erro">
+      <div class="result-card fade-in">
+        <p>🔄 Carregando…</p>
+      </div>
+      <p class="proto-note">US11 — estado de carregamento exibido enquanto a API responde.</p>
+
+      <div class="card" style="margin-top:0;">
+        <p class="error">❌ Informe o número do processo.</p>
+      </div>
+      <p class="proto-note">US10 — validação de campo obrigatório antes de consultar.</p>
+
+      <div class="card" style="margin-top:0;">
+        <p class="error">❌ Processo não encontrado.</p>
+      </div>
+      <p class="proto-note">US14 — nenhum resultado retornado pela API.</p>
+
+      <div class="card" style="margin-top:0;">
+        <p class="error">❌ Erro: Status 502</p>
+      </div>
+      <p class="proto-note">US15 — falha de rede, proxy CORS ou API do DATAJUD.</p>
+    </section>
+
+  </div>
+
+<script>
+  // Tema (mesma lógica de script.js, isolada neste protótipo)
+  const body = document.getElementById('body');
+  const toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('change', () => {
+    body.className = toggle.checked ? 'dark' : 'light';
+  });
+
+  // Navegação entre telas do protótipo (não existe no app original)
+  document.querySelectorAll('.proto-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.proto-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.proto-screen').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
