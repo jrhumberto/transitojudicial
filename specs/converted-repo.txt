@@ -1,0 +1,885 @@
+Selected Files Directory Structure:
+
+└── ./
+    ├── docs
+    │   ├── cases_test.md
+    │   └── first_prompt.md
+    ├── riscos
+    │   └── mapa_riscos.md
+    ├── datajud.html
+    ├── home.html
+    ├── index.html
+    ├── login.html
+    ├── README.md
+    ├── script.js
+    └── styles.css
+
+
+
+--- README.md ---
+
+# transitojudicial
+
+Aplicação web para autenticação simples e consulta de processos judiciais diretamente na API pública do **DATAJUD/CNJ**.
+
+## Ambiente para testes e demonstrações 
+>As seguintes 2 credenciais para usuário/senha neste ambiente: teste/teste ou admin/admin):
+https://jrhumberto.github.io/transitojudicial/
+
+## Contexto de negócio
+
+Um importante problema quando se estuda Jurimetria é saber a razoável duração de um processo. Por isso, é relevante compreender o marco do "Trânsito em Julgado" como seu ponto de finalização. No entanto, alguns processos tem características peculiares que podem necessitar de mais de um marco, por isso esta aplicação vem no interesse de ofertar uma visão sintética que esclarece se um processo teve mais de um "Trânsito em julgado"
+
+A consulta em tribunais é um processo demasiadamente mecânico, com cada Egrégia com seu sistema de consulta. Um importante sintoma dessa difuiculdade é ofertar aos advogados um local para consultar processos e a API do Conselho Nacional de Justiça do DATAJUD veio para facilitar este acesso.
+
+Dessa forma, nossa aplicação realiza consultas nesta API e oferta um resultado que pode indicar se uma lide teve ou não "trânsito em julgado" ou se mais de um marco assim e suas datas de movimentação processual.
+
+Exemplo de saída interessante de nossa aplicação:
+
+<p align="center">
+  <img src="img/duplo-transitado.png" alt="Processo com duplo transitado" width="100%" />
+</p>
+
+
+
+## Visão geral da Aplicação
+
+Este projeto oferece uma interface web para:
+
+- realizar login com credenciais autorizadas;
+- alternar entre tema claro e escuro;
+- consultar um processo pelo número único do processo (NUP);
+- exibir informações resumidas do processo retornadas pela API do DATAJUD e consultar se ele tem a **peculiaridade de duplo "trânsito em julgado"**.
+
+A aplicação é composta por páginas estáticas em HTML, CSS e JavaScript.
+
+## Funcionalidades
+
+- **Login restrito**
+  - autenticação baseada em credenciais definidas em `env.js` (não é boa prática deixar credenciais expostas);
+  - redirecionamento após login;
+  - expiração da sessão após 30 minutos.
+
+- **Consulta de processo**
+  - pesquisa por número único do processo;
+  - seleção do tribunal;
+  - exibição de dados como:
+    - tribunal;
+    - grau;
+    - data de ajuizamento;
+    - última atualização;
+    - nível de sigilo;
+    - assuntos;
+    - classe;
+    - sistema;
+    - formato;
+    - órgão julgador;
+    - primeiro e último movimento;
+    - ocorrência relacionada a julgamento.
+    - checagem se houve um ou mais de um "trânsitado em julgado"
+
+- **Tema claro/escuro**
+  - persistência da preferência no `localStorage`.
+
+- **Design responsivo**
+  - interface adaptada para telas menores.
+
+## Estrutura do projeto
+
+```bash
+.
+├── index.html
+├── login.html
+├── home.html
+├── datajud.html
+├── script.js
+├── styles.css
+├── README.md
+└── .github/
+```
+
+## Utilização da página
+
+### Acessar a aplicação
+    * Abra index.html ou a URL do projeto (pode ser o link do ambiente de testes e demonstração ).
+    * Faça login com uma credencial válida.
+    * Escolha o destino:
+        - Home
+        - Datajud (escolha essa opção se quiser consultar um processo)
+
+### Consultar um processo
+    * Digite o número único do processo (pode ser com pontos e barras).
+    * Selecione o tribunal.
+    * Clique em Confirmar.
+    * Aguarde o retorno da consulta.
+
+
+### Tribunais suportados
+    - STJ
+    - TJCE
+    - TJSP
+    - TRF1
+    - TRF2
+    - TRF3
+    - TRF4
+    - TRF5
+    - TRF6
+
+### Importante: Há dependência de disponibilidade da API do DATAJUD que é mantida pelo CNJ.
+
+
+## Boas práticas recomendadas para versões futuras e backlog de segurança da página
+    [ ] mover credenciais e tokens para backend;
+    [ ] remover dependência de env.js no front-end;
+    [ ] validar melhor a entrada do número do processo;
+    [ ] tratar cenários em que movimentos ou assuntos estejam ausentes;
+    [ ] adicionar loading state mais robusto;
+    [ ] incluir testes para parseData;
+    [ ] adicionar tratamento de erro específico para falhas de CORS e API.
+    [ ] usar autenticação real no backend;
+    [ ] evitar expor token da API no navegador;
+    [ ] implementar rate limiting e logs de auditoria.
+
+## Limitações
+    - autenticação é apenas client-side;
+    - depende de env.js;
+    - a consulta pode falhar se o proxy CORS estiver indisponível;
+    - o formato dos dados depende da resposta da API do DATAJUD.
+
+## Tecnologias utilizadas
+    - HTML5
+    - CSS3
+    - JavaScript
+    - API pública do DATAJUD/CNJ
+
+
+## Prompt inicial
+```bash
+I want a web page where I can enter a case number and have it track or show the status of a case directly from the DATAJUD API in Brazil. It should have a simple interface to log in, go to a home screen, and then allow searching or tracking a judicial process. The site should connect to the DATAJUD API and display useful information from it without me needing to handle technical details. Please use modern, user-friendly design and make sure everything works smoothly. If you need more details on how the API works, just look up the latest DATAJUD API docs online.
+```
+
+## Licença
+Apache-2.0
+
+## Referência
+
+Documentação oficial da API pública do DATAJUD:
+https://datajud-wiki.cnj.jus.br/api-publica/endpoints
+
+
+
+--- datajud.html ---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulta de Processo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="theme-toggle-wrapper">
+    <label class="theme-switch">
+      <input type="checkbox" id="theme-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="card">
+    <h2 class="title">🔎 Consulta de Processo</h2>
+    <input
+      type="text"
+      id="processo"
+      placeholder="Digite o número único do processo (NUP)"
+      required
+    />
+    <select id="tribunal">
+      <option value="stj" selected>⚖️ STJ</option>
+      <option value="tjce">📃 TJCE</option>
+      <option value="tjsp">📃 TJSP</option>
+      <option value="trf1">⚖️ TRF1</option>
+      <option value="trf2">⚖️ TRF2</option>
+      <option value="trf3">⚖️ TRF3</option>
+      <option value="trf4">⚖️ TRF4</option>
+      <option value="trf5">⚖️ TRF5</option>
+      <option value="trf6">⚖️ TRF6</option>
+    </select>
+    <button onclick="searchProcess()">Confirmar</button>
+  </div>
+
+  <div id="result-container"></div>
+
+  <script src="env.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+--- docs/cases_test.md ---
+
+# Casos de teste
+
+## Processos simples no STJ
+
+0002213-52.2010.4.02.5103  
+0035440-04.2009.4.03.6182  
+5007797-89.2020.4.04.0000  
+
+## Processos com duplo trânsito em julgado no STJ
+
+0049481-77.1999.4.03.6100
+Último Transitado em Julgado em 05/08/2025
+
+0000506-54.2015.4.03.6135
+Último Transitado em Julgado em 05/08/2025
+
+5013500-16.2021.4.04.7000
+Último Transitado em Julgado em 29/05/2025
+
+5033119-39.2015.4.04.7000
+Último Transitado em Julgado em 02/07/2025
+
+
+--- docs/first_prompt.md ---
+
+# Abaixo elenco o primeiro prompt do projeto
+
+```bash
+I want a web page where I can enter a case number and have it track or show the status of a case directly from the DATAJUD API in Brazil.
+It should have a simple interface to log in, go to a home screen, and then allow searching or tracking a judicial process.
+The site should connect to the DATAJUD API and display useful information from it without me needing to handle technical details.
+Please use modern, user-friendly design and make sure everything works smoothly.
+If you need more details on how the API works, just look up the latest DATAJUD API docs online.
+```
+
+
+--- home.html ---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="theme-toggle-wrapper">
+  <label class="theme-switch">
+    <input type="checkbox" id="theme-toggle" />
+    <span class="slider"></span>
+  </label>
+  </div>
+  <div class="card">
+    <h2 class="title">🎉 Bem-vindo!</h2>
+    <p class="subtitle">Você está logado com sucesso.</p>
+    <button onclick="logout()">🚪 Sair</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+--- index.html ---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta http-equiv="refresh" content="0; URL=login.html" />
+  <title>Redirecionando…</title>
+</head>
+<body>
+  <p>Redirecionando para a página de login…</p>
+</body>
+</html>
+
+
+--- login.html ---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="theme-toggle-wrapper">
+  <label class="theme-switch">
+    <input type="checkbox" id="theme-toggle" />
+    <span class="slider"></span>
+  </label>
+  </div>
+  <div class="card">
+    <h2 class="title">🔐 Acesso Restrito</h2>
+    <input type="email" id="email" placeholder="Usuário" required autofocus />
+    <input type="password" id="password" placeholder="Senha" required />
+    <select id="redirect">
+      <option value="home.html">🏠 Home</option>
+      <option value="datajud.html" selected>⚖️ Datajud</option>
+    </select>
+    <button onclick="login()">Entrar</button>
+    <p id="error" class="error"></p>
+  </div>
+  <script src="env.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+--- riscos/mapa_riscos.md ---
+
+| Backlog | ID | Risco | Probabilidade | Impacto | Resposta | Plano de Mitigação |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| TRUE | R01 | Exposição de credenciais/tokens no front-end | Alta | Crítico | Evitar | Mover credenciais para backend, evitar exposição no navegador. |
+| TRUE | R02 | Vazamento de variáveis de ambiente (env.js) | Média | Alto | Mitigar | Remover dependência de env.js no front-end, usar variáveis de build seguras. |
+| TRUE | R03 | Injeção ou dados malformados no número do processo | Média | Alto | Mitigar | Validar rigorosamente a entrada do número do processo (regex/sanitização). |
+| TRUE | R04 | Quebra de UI/dados por movimentos/assuntos ausentes | Alta | Médio | Mitigar | Tratar cenários nulos/vazios para movimentos e assuntos no parseData. |
+| TRUE | R05 | Má experiência do usuário (UX) por falta de feedback | Média | Médio | Mitigar | Adicionar loading state mais robusto durante chamadas assíncronas. |
+| TRUE | R06 | Regressão funcional no parser de dados | Baixa | Alto | Mitigar | Incluir testes unitários e de integração específicos para parseData. |
+| TRUE | R07 | Falhas silenciosas ou bloqueio por CORS/API | Média | Alto | Mitigar | Adicionar tratamento de erro específico para falhas de CORS e erros de API. |
+| TRUE | R08 | Acesso não autorizado ao backend | Alta | Crítico | Evitar | Implementar autenticação real no backend (não apenas front-end). |
+| TRUE | R09 | Abuso de API e falta de rastreabilidade | Média | Alto | Mitigar | Implementar rate limiting e logs de auditoria para monitoramento. |
+| FALSE | R10 | Não conformidade com normas de proteção de dados (LGPD/GDPR) | Baixa | Alto | Mitigar | Consultoria jurídica, revisão de compliance e documentação adequada. |
+| FALSE | R11 | Interface confusa ou pouco intuitiva | Média | Médio | Mitigar | Testes de usabilidade, protótipos e feedback de usuários reais. |
+| FALSE | R12 | Perda de conhecimento técnico (Bus Factor) | Baixa | Médio | Mitigar | Documentação clara, pair programming e compartilhamento de conhecimento. |
+
+
+
+--- script.js ---
+
+function parseData(str) {
+  if (typeof str !== "string") return "**/**/****";
+  const s = str.trim();
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  // 1) Formato yyyymmddhhmmss -> 20190405000000
+  if (/^\d{14}$/.test(s)) {
+    const ano = Number(s.slice(0, 4));
+    const mesIndex = Number(s.slice(4, 6)) - 1;
+    const dia = Number(s.slice(6, 8));
+    const hora = Number(s.slice(8, 10));
+    const min = Number(s.slice(10, 12));
+    const seg = Number(s.slice(12, 14));
+    const d = new Date(ano, mesIndex, dia, hora, min, seg);
+    if (isNaN(d)) return "**/**/****";
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  // 2) Formato dd/mm/yyyy -> 04/07/2025
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+    const [dia, mes, ano] = s.split('/').map(Number);
+    const d = new Date(ano, mes - 1, dia);
+    if (isNaN(d)) return "**/**/****";
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  }
+
+  // 3) ISO 8601 com T (com ou sem Z) -> 2025-07-04T22:13:38.539Z
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const d = new Date(s);
+    if (isNaN(d)) return "**/**/****";
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  // 4) ISO date simples YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [ano, mes, dia] = s.split('-').map(Number);
+    const d = new Date(ano, mes - 1, dia);
+    if (isNaN(d)) return "**/**/****";
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  }
+
+  // Caso nenhum formato reconhecido
+  return "**/**/****";
+}
+
+
+function applyTheme() {
+  const theme = localStorage.getItem("theme") || "light";
+  document.body.className = theme;
+
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    toggle.checked = theme === "dark";
+  }
+}
+
+function setupThemeToggle() {
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      const newTheme = toggle.checked ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+      applyTheme();
+    });
+  }
+}
+
+applyTheme();
+setupThemeToggle();
+
+if (window.location.pathname.includes("login.html")) {
+  window.login = function () {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+    const redirect = document.getElementById("redirect").value;
+
+    if (typeof window.env === "undefined") {
+      document.getElementById("error").textContent = "⚠️ Erro ao carregar variáveis de ambiente.";
+      return;
+    }
+
+    const { ALLOWED_USER1, ALLOWED_PASS1, ALLOWED_USER2, ALLOWED_PASS2, AUTHORIZED } = window.env;
+
+    if (
+      (email === ALLOWED_USER1 && pass === ALLOWED_PASS1) ||
+      (email === ALLOWED_USER2 && pass === ALLOWED_PASS2)
+    ) {
+      localStorage.setItem("authenticated", "true");
+      localStorage.setItem("loginTime", Date.now().toString());
+      window.location.href = redirect || "home.html";
+    } else {
+      document.getElementById("error").textContent = "❌ Credenciais inválidas.";
+    }
+  };
+}
+
+if (["home.html", "dashboard.html", "datajud.html"].some(p => window.location.pathname.includes(p))) {
+  const isAuth = localStorage.getItem("authenticated") === "true";
+  const loginTime = parseInt(localStorage.getItem("loginTime") || "0");
+  const now = Date.now();
+  const expired = now - loginTime > 30 * 60 * 1000;
+
+  if (!isAuth || expired) {
+    localStorage.removeItem("authenticated");
+    localStorage.removeItem("loginTime");
+    window.location.href = "login.html";
+  }
+
+  window.logout = function () {
+    localStorage.removeItem("authenticated");
+    localStorage.removeItem("loginTime");
+    window.location.href = "login.html";
+  };
+}
+
+// Página de consulta de processo
+if (window.location.pathname.includes("datajud.html")) {
+  window.searchProcess = async function () {
+    const numeroInput = document.getElementById("processo");
+    const numero = numeroInput.value.trim().replace(/\D/g, '');;
+    const container = document.getElementById("result-container");
+
+    container.innerHTML = "";
+
+    if (!numero) {
+      container.innerHTML = `<p class="error">❌ Informe o número do processo.</p>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="result-card fade-in">
+        <p>🔄 Carregando…</p>
+      </div>
+    `;
+
+    try {
+      const trib = document.getElementById("tribunal").value;
+      const { ALLOWED_USER1, ALLOWED_PASS1, ALLOWED_USER2, ALLOWED_PASS2, AUTHORIZED } = window.env;
+      const url_source = encodeURIComponent("https://api-publica.datajud.cnj.jus.br/api_publica_"+trib+"/_search");
+      const url_proxy = "https://corsproxy.io/?url=" + url_source;
+
+      const resp = await fetch(url_proxy, {
+        method: "POST",
+        headers: {
+          "Authorization": AUTHORIZED,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: {
+            match: {
+              numeroProcesso: numero,
+            },
+          },
+        }),
+      });
+
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+
+      const json = await resp.json();
+      const hits = json.hits?.hits || [];
+
+      if (hits.length === 0) {
+        container.innerHTML = `<p class="error">❌ Processo não encontrado.</p>`;
+        return;
+      }
+
+      const src = hits[0]._source;
+      const assuntosTodos = src.assuntos.map(a => `${a.codigo} - ${a.nome}`);
+      const assuntosFormatados = assuntosTodos.join(", ");
+      //const dataAjuizamentoRaw = src.dataAjuizamento;
+      const dataAjuizamento = parseData(src.dataAjuizamento);
+      //const dataUltimaAtual = src.dataHoraUltimaAtualizacao ? new Date(src.dataHoraUltimaAtualizacao).toLocaleDateString() : ' **/**/***** ';
+      //const dataUltimaAtualRaw = src.dataHoraUltimaAtualizacao;
+      const dataUltimaAtual = parseData(src.dataHoraUltimaAtualizacao);
+      const classe = src.classe.codigo + ' - ' + src.classe.nome;
+      const sistema = src.sistema.codigo + ' - ' + src.sistema.nome;
+      const formato = src.formato.codigo + ' - ' + src.formato.nome;
+      const orgaoJulgador = src.orgaoJulgador.codigo + ' - ' + src.orgaoJulgador.nome;
+      const pri = src.movimentos[0]
+      const primeiroMovimentoFormatado = pri? pri.codigo + ' - ' + pri.nome + ' em: ' + parseData(pri.dataHora) : '***';
+      const ult = src.movimentos[src.movimentos.length -1]
+      const ultimoMovimentoFormatado = ult? ult.codigo + ' - ' + ult.nome + ' em: ' + parseData(ult.dataHora): '***';
+      const vm = src.movimentos;
+      //const tr_julg = julg ? (`<p>✅ <strong>Trânsito em Julgado:</strong>`+ julg +`</p>`): ``;
+      const julg = vm.filter(a => a.nome.toLowerCase().includes('julgado'))
+      .map(a => `<span class="invisible-code" tabindex="0" title="${a.codigo}">${a.codigo}</span> - ${a.nome} em: ${parseData(a.dataHora)}`);
+
+      const tr_julg = julg.length ? (`
+        <div class="info-highlight">
+          <span class="info-icon">✅</span>
+          <div class="info-content">
+            <strong>${julg.join('<br>')}</strong>
+          </div>
+          </div>
+      `) : ``;
+
+      container.innerHTML = `
+        <div class="result-card fade-in">
+          <button class="clear-btn" onclick="document.getElementById('result-container').innerHTML = ''; document.getElementById('processo').value = '';">🧹 Limpar</button>
+          <h3>🆔 ${src.numeroProcesso}</h3>
+          <p>🏛️ <strong>Tribunal:</strong> ${src.tribunal}</p>
+          <p>📍 <strong>Grau:</strong> ${src.grau}</p>
+          <p>📅 <strong>Data de Ajuizamento:</strong> ${dataAjuizamento}</p>
+          <p>🕒 <strong>Última Atualização:</strong> ${dataUltimaAtual}</p>
+          <p>🔒 <strong>Nível de Sigilo:</strong> ${src.nivelSigilo}</p>
+          <p>📢 <strong>Assuntos:</strong> ${assuntosFormatados}</p>
+          <p>📓 <strong>Classe:</strong> ${classe}</p>
+          <p>🖥️ <strong>Sistema:</strong> ${sistema}</p>
+          <p>🖺  <strong>Formato:</strong> ${formato}</p>
+          <p>🧑‍⚖️ <strong>Orgão Julgador:</strong> ${orgaoJulgador}</p>
+          <p>📚 <strong>Primeiro Movimento:</strong> ${primeiroMovimentoFormatado}</p>
+          <p>🔥 <strong>Último Movimento:</strong> ${ultimoMovimentoFormatado}</p>
+          ${tr_julg}
+        </div>
+      `;
+    } catch (err) {
+      container.innerHTML = `<p class="error">❌ Erro: ${err.message}</p>`;
+    }
+  };
+}
+
+
+--- styles.css ---
+
+:root {
+  --bg-light: #f1f5f9;
+  --bg-dark: #0f172a;
+  --text-light: #0f172a;
+  --text-dark: #f1f5f9;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #cbd5e1;
+  --radius: 0.5rem;
+  --font: 'Segoe UI', sans-serif;
+  --error: #dc2626;
+  --result-bg: #f5f5f5;
+  --result-btn-bg: #e0dcd2;
+  --result-btn-hover: #d4d0c6;
+  --result-btn-text: #4a4a4a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body.light {
+  background-color: var(--bg-light);
+  color: var(--text-light);
+}
+
+body.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.card {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+body.dark .card {
+  background-color: #1e293b;
+  color: var(--text-dark);
+}
+
+.result-card {
+  background-color: var(--result-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 720px;
+  text-align: left;
+  margin: 0 auto 2rem auto;
+}
+
+.result-card h3 {
+  margin-top: 0;
+}
+
+.clear-btn {
+  display: inline-block;
+  margin-bottom: 1rem;
+  background-color: var(--result-btn-bg);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--result-btn-text);
+}
+
+.clear-btn:hover {
+  background-color: var(--result-btn-hover);
+}
+
+input, select, button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+button {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+  transform: scale(1.02);
+}
+
+.title {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.error {
+  color: var(--error);
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Tema toggle estilo shadcn */
+.theme-toggle-wrapper {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: background-color 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "🌞";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.4s, content 0.4s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input:checked + .slider {
+  background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+  content: "🌙";
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .card, .result-card {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  button {
+    font-size: 0.95rem;
+  }
+}
+
+body.dark .result-card {
+  background-color: #1e293b; /* fundo escuro */
+  color: var(--text-dark);   /* texto claro */
+}
+
+body.dark .result-card strong {
+  color: var(--text-dark);   /* força o texto em <strong> a ser visível */
+}
+
+.info-highlight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  background-color: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  color: inherit;
+  margin: 1rem 0;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.info-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.info-content {
+  flex: 1;
+}
+
+/* Tema escuro */
+body.dark .info-highlight {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .info-icon {
+  color: var(--accent);
+}
+
+.invisible-text {
+  color: rgba(37, 99, 235, 0.08); /* mesma cor do fundo claro */
+  user-select: text; /* garante que ainda possa ser copiado */
+  transition: color 0.3s ease;
+}
+
+/* tema escuro */
+body.dark .invisible-text {
+  color: #1e293b; /* mesma cor do fundo escuro */
+}
+
+/* ao selecionar o texto, revela */
+.invisible-text::selection {
+  color: var(--accent);
+  background-color: rgba(255,255,255,0.2);
+}
+
+/* Invisibiliza, mas mantém o texto selecionável e no fluxo */
+.invisible-code {
+  color: transparent;                  /* texto invisível */
+  -webkit-text-fill-color: transparent;/* Safari */
+  transition: color .16s ease;         /* transição suave ao revelar */
+  cursor: text;                        /* cursor de texto ao passar por cima */
+  white-space: nowrap;                 /* evita quebra no código curto */
+  outline: none;
+}
+
+/* Revela quando o usuário passa o mouse sobre o próprio código,
+   quando foca via teclado, ou quando passa o mouse sobre o card pai */
+.invisible-code:hover,
+.invisible-code:focus,
+.info-highlight:hover .invisible-code {
+  color: var(--accent);                /* cor visível ao passar o mouse */
+  -webkit-text-fill-color: initial;
+}
+
+/* Leve destaque quando o usuário seleciona/copiar (visível durante seleção) */
+.invisible-code::selection {
+  color: var(--accent);
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+/* Ajuste para modo escuro: usa uma variação do accent se quiser */
+body.dark .invisible-code:hover,
+body.dark .invisible-code:focus,
+body.dark .info-highlight:hover .invisible-code {
+  color: var(--accent-hover);
+}
+
+/* Foco por teclado — para acessibilidade visual */
+.invisible-code:focus {
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  border-radius: 4px;
+}
